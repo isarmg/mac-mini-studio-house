@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "profiles": {
+    "mac-mini": {
+      "degree": 7,
+      "knots": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "controls_mm": [
+        [
+          24.057737854588144,
+          63.50000000000001
+        ],
+        [
+          38.389461208052055,
+          63.50000000000001
+        ],
+        [
+          46.95218406678972,
+          63.50000000000001
+        ],
+        [
+          52.77646199985835,
+          63.50000000000001
+        ],
+        [
+          63.50000000000001,
+          52.77646199985835
+        ],
+        [
+          63.50000000000001,
+          46.95218406678972
+        ],
+        [
+          63.50000000000001,
+          38.389461208052055
+        ],
+        [
+          63.50000000000001,
+          24.057737854588144
+        ]
+      ],
+      "weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "units": "mm",
+      "width_mm": 127.0,
+      "xy_scale": 1.0024057439411727,
+      "source_report": "results/fitting/reference/mac-mini/optimized_report.json",
+      "source_report_sha256": "bfb8c96f6dbaa5211c05e352cfb44ef8eacd3636da7d88caff16ddf11f319562",
+      "definition": "Accepted 01 fitted quarter scaled to nominal width; same definition for both projects"
+    },
+    "mac-studio": {
+      "degree": 7,
+      "knots": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "controls_mm": [
+        [
+          42.01865006037191,
+          98.5
+        ],
+        [
+          71.55478892765336,
+          98.5
+        ],
+        [
+          72.03344918554463,
+          98.5
+        ],
+        [
+          88.88585171646254,
+          98.5
+        ],
+        [
+          98.5,
+          88.88585171646254
+        ],
+        [
+          98.5,
+          72.03344918554463
+        ],
+        [
+          98.5,
+          71.55478892765336
+        ],
+        [
+          98.5,
+          42.01865006037191
+        ]
+      ],
+      "weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "units": "mm",
+      "width_mm": 197.0,
+      "xy_scale": 0.9996084788230246,
+      "source_report": "results/fitting/reference/mac-studio/optimized_report.json",
+      "source_report_sha256": "df8337a26e1ed7ba72bc7702c7ed7e7775f149bb0f2753a5f5c7f404296eaf11",
+      "definition": "Accepted 01 fitted quarter scaled to nominal width; same definition for both projects"
+    }
+  }
+}

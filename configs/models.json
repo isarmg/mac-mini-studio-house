@@ -1,0 +1,100 @@
+{
+  "mini": {
+    "input_file": "mac-mini-silver.usdz",
+    "source_sha256": "83c6bc7efd467ad658130d575b59a8fad2e1c833dbf326890475cb10630da047",
+    "output_folder": "mac-mini",
+    "shell_leaf": "ZcZAwierVgZAoIu",
+    "nominal_width_mm": 127.0,
+    "design_width_mm": 126.69520378112793,
+    "baseline_control_points_mm": [
+      [
+        26.399301528885253,
+        63.347601890563965
+      ],
+      [
+        35.69690381322032,
+        63.347601890563965
+      ],
+      [
+        49.2156369388524,
+        63.347601890563965
+      ],
+      [
+        51.690230227225925,
+        63.347601890563965
+      ],
+      [
+        63.347601890563965,
+        51.690230227225925
+      ],
+      [
+        63.347601890563965,
+        49.2156369388524
+      ],
+      [
+        63.347601890563965,
+        35.69690381322032
+      ],
+      [
+        63.347601890563965,
+        26.399301528885253
+      ]
+    ],
+    "tangent_prior_mm": 27.4,
+    "tangent_bounds_mm": [
+      24.0,
+      31.0
+    ],
+    "expected_openings": 9,
+    "baseline_origin": "pre-beta first-round fit; frozen as the non-regression candidate"
+  },
+  "studio": {
+    "input_file": "mac-studio.usdz",
+    "source_sha256": "e690c05495622e9988e6d182e85e8258afa90b0bb5ab5ed59a6957b350ecfebe",
+    "output_folder": "mac-studio",
+    "shell_leaf": "MsNhwtWsfXxntST",
+    "nominal_width_mm": 197.0,
+    "design_width_mm": 197.0771598815918,
+    "baseline_control_points_mm": [
+      [
+        42.035107695211025,
+        98.5385799407959
+      ],
+      [
+        71.58281511567867,
+        98.5385799407959
+      ],
+      [
+        72.06166285259948,
+        98.5385799407959
+      ],
+      [
+        88.92066604028807,
+        98.5385799407959
+      ],
+      [
+        98.5385799407959,
+        88.92066604028807
+      ],
+      [
+        98.5385799407959,
+        72.06166285259948
+      ],
+      [
+        98.5385799407959,
+        71.58281511567867
+      ],
+      [
+        98.5385799407959,
+        42.035107695211025
+      ]
+    ],
+    "tangent_prior_mm": 42.035107695211025,
+    "tangent_bounds_mm": [
+      36.035107695211025,
+      48.035107695211025
+    ],
+    "expected_openings": 15,
+    "baseline_origin": "pre-beta first-round fit; frozen as the non-regression candidate"
+  }
+}

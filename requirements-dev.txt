@@ -1,0 +1,2 @@
+# Optional formatting only; not required for fitting or unittest.
+black==26.5.1

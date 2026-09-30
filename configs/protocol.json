@@ -1,0 +1,34 @@
+{
+  "end_margin_fraction": 0.1,
+  "opening_guard_mm": 0.25,
+  "support_tolerance_mm": 0.002,
+  "weld_decimals_mm": 4,
+  "section_sample_count": 960,
+  "train_heights": [
+    0.18,
+    0.35,
+    0.65,
+    0.88
+  ],
+  "validation_heights": [
+    0.25,
+    0.5,
+    0.8
+  ],
+  "test_heights": [
+    0.12,
+    0.42,
+    0.6,
+    0.73
+  ],
+  "corner_threshold_halfwidth_ratio": 0.38,
+  "train_threshold_halfwidth_ratio": 0.28,
+  "candidate_names": [
+    "bezier7",
+    "quintic_C3",
+    "bezier9"
+  ],
+  "model_selection_relative_margin": 0.01,
+  "maximum_baseline_movement_mm": 0.15,
+  "maximum_validation_regression_mm": 0.005
+}

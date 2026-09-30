@@ -1,0 +1,70 @@
+# Local environments, dependencies and temporary files
+.venv/
+venv/
+.vendor/
+.devtools/
+.tmp/
+.env
+.env.*
+!.env.example
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+build/
+dist/
+*.egg-info/
+
+# Native build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Generated geometry, releases, reports and historical output
+results/
+output/
+releases/
+/validation/
+/delivery_*.json
+/exact_*.json
+/DELIVERY.md
+/EXACT_MIGRATION.md
+/fit_reference_manifest.json
+
+# CAD inputs and exports (keep source configuration and test fixtures)
+*.[uU][sS][dD]
+*.[uU][sS][dD][aAcCzZ]
+*.3[dD][mM]
+*.[sS][tT][pP]
+*.[sS][tT][eE][pP]
+*.[xX]_[tTbB]
+*.[bB][rR][eE][pP]
+*.[sS][tT][lL]
+*.[sS][lL][dD][pP][rR][tT]
+*.[sS][lL][dD][aA][sS][mM]
+*.npz
+*.npy
+
+# Editor, operating-system and runtime clutter
+.vs/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp
+*.bak
+*.swp
+*~
