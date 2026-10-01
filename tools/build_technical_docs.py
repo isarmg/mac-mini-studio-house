@@ -25,6 +25,8 @@ sys.path.append(str(ROOT/'.devtools'))
 SOURCES = {}
 CHAPTERS = ['01_PROJECT.md', '02_FITTING.md', '03_MATHEMATICS.md',
             '04_REPRODUCTION.md', '05_INNER_CONTROLS.md']
+CANDIDATE_LABELS = {'previous': '七次 Bézier 基准', 'bezier7': '优化七次 Bézier',
+                    'quintic_C3': '五次 C3 B 样条', 'bezier9': '九次 Bézier'}
 
 
 def digest(path):
@@ -280,7 +282,7 @@ def figures(data,reports,candidates,temporary):
     fig,axes=plt.subplots(1,2,figsize=(12,4.6),layout='constrained')
     for ax,(name,items) in zip(axes,candidates.items()):
         for item in items:
-            rows=item['sections'];ax.plot([r['fraction']*100 for r in rows],[r['supported_corner']['rms_mm'] for r in rows],'.-',label=item['name'],lw=1.3)
+            rows=item['sections'];ax.plot([r['fraction']*100 for r in rows],[r['supported_corner']['rms_mm'] for r in rows],'.-',label=CANDIDATE_LABELS[item['name']],lw=1.3)
         ax.set(title=name+'  原始尺度有效角部',xlabel='源侧壁高度 / %',ylabel='RMS / mm');ax.grid(alpha=.15);ax.legend(fontsize=8)
     finish(fig,'fit_errors')
     fig,axes=plt.subplots(1,2,figsize=(12,4.5),layout='constrained')
@@ -312,13 +314,13 @@ def figures(data,reports,candidates,temporary):
 
 
 def write_tables(data,manifest,reports,candidates,heights,parameters,audits,offsets,proof):
-    block('README.md','SUMMARY',f'本次文档对应发布 `{manifest["release"]}`。外轮廓公式、四种内轮廓与独立 3DM 曲线复现均已检查；正式模型文件保持原值。')
+    block('README.md','SUMMARY',f'文档数据绑定发布 `{manifest["release"]}`，包含外轮廓公式、四种内轮廓与独立 3DM 曲线复现检查，以及正式 CAD 文件的 SHA-256 核对。')
     block('01_PROJECT.md','DIMENSIONS',table(['机型','外宽 mm','壳体高 mm','底座高 mm','嵌入 mm','装配高 mm','底座锥角'],[
         ['Mini','127','43','8','1.5','49.5','45°'],['Studio','197','86.5','10.0','1.5','95.0','30°']]))
     candidate_rows=[];fit_rows=[];height_rows=[]
     for name,r in reports.items():
         for item in candidates[name]:
-            candidate_rows.append([name,item['name']+('（选中）' if item['name']==r['selected_model'] else ''),str(item['degree']),len(item['controls_mm']),
+            candidate_rows.append([name,CANDIDATE_LABELS[item['name']]+('（选中）' if item['name']==r['selected_model'] else ''),str(item['degree']),len(item['controls_mm']),
                                    f'{item["validation"]["rms_mm"]:.9f}',f'{item["validation"]["max_mm"]:.9f}',f'{item["test"]["rms_mm"]:.9f}'])
         for role,label in (('train','训练'),('validation','验证'),('test','测试')):
             metric=r['model'][role];scale=r['nominal_xy_scale'];count=sum(x['supported_corner']['count'] for x in r['model']['sections'] if x['role']==role)
@@ -419,7 +421,7 @@ def render_html():
     '''
     document='<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mac Mini Mac Studio 项目技术文档</title><style>'+style+'</style></head><body>'
     document+='<aside><strong>Mac Mini<br>Mac Studio<br>项目技术文档</strong>'+''.join(navigation)+'<a href="geometry_definition.json">完整精度参数 JSON</a><a href="reproduce_profiles.py">独立复现脚本</a><a href="../../DELIVERY.md">正式文件索引</a></aside>'
-    document+='<main><header><div class="eyebrow">工程方案 · 数学定义 · 可复现数据</div><h1>从源网格到同一条 G3 曲线</h1><p>说明项目如何运行、为什么采用当前拟合、结果有多大误差，以及如何用完整参数重画相同轮廓。公式与图表已嵌入本页，可离线阅读。</p><p>SVG 和 CSV 是采样显示；精确曲线由次数、控制点、权重、节点及连接顺序定义。</p></header>'+''.join(chapters)+'</main></body></html>'
+    document+='<main><header><div class="eyebrow">工程方案 · 数学定义 · 可复现数据</div><h1>从源网格到同一条 G3 曲线</h1><p>说明项目运行流程、拟合方法与误差、三维建模方案，以及如何用完整参数重画相同轮廓。公式与图表已嵌入本页，可离线阅读。</p><p>SVG 和 CSV 是采样显示；精确曲线由次数、控制点、权重、节点及连接顺序定义。</p></header>'+''.join(chapters)+'</main></body></html>'
     (DOC/'index.html').write_text(document,encoding='utf-8')
     return {'equations_rendered':equation_count,'chapters':len(CHAPTERS),'offline':True}
 

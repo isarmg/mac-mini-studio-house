@@ -4,7 +4,7 @@
 
 OpenUSD 解析 USDZ，应用完整父级世界变换与 `metersPerUnit`，记录 SHA-256、Prim、单位和网格属性。当前协议仅支持配置文件中的静态 Y-up 多边形资产，拒绝细分控制笼、动画、意外拓扑或输入指纹变化。
 
-两模型独立求解。基准曲线保存在 `configs/models.json`，属于预先拟合的参考候选，不依赖旧输出文件。正方形设计宽度取首轮外壳宽深均值，原始观测不作非等比缩放；127 / 197 mm 公称版在导出时水平统一缩放。
+两模型独立求解。基准曲线作为参考候选保存在 `configs/models.json`。正方形设计宽度取源外壳宽深均值，原始观测不作非等比缩放；127 / 197 mm 公称版在导出时水平统一缩放。
 
 ## 有效侧壁与开孔
 
@@ -20,7 +20,7 @@ OpenUSD 解析 USDZ，应用完整父级世界变换与 `metersPerUnit`，记录
 
 ## 曲线、求解与选择
 
-比较已有七次基准、重新求解的单段七次、两段五次 C3 B 样条和单段九次。所有候选为严格对称曲线，前后各四个控制点位于对应切线，保持非零端点速度，从而满足与直线连接的平面 G3 条件：κ=0、dκ/ds=0。
+比较七次 Bézier 基准、优化七次 Bézier、两段五次 C3 B 样条和单段九次 Bézier。所有候选为严格对称曲线，前后各四个控制点位于对应切线，保持非零端点速度，从而满足与直线连接的平面 G3 条件：κ=0、dκ/ds=0。
 
 SLSQP 求解最近距离稳健损失、曲率变化惩罚和弱切点先验；施加曲率单调和正则性约束。单调性最终仍为密采样验证，未提供连续区间的符号证明。切点范围是工程先验，不是统计置信区间。
 
@@ -34,10 +34,10 @@ SLSQP 求解最近距离稳健损失、曲率变化惩罚和弱切点先验；�
 
 四角共形、正方形、侧壁轴向对齐是设计先验，不是从文件证明的实物事实。当前数据不足以稳定识别真实切点；mini 最终切点触及搜索下界。Studio 的宽深差也对正方形拟合残差有明显贡献。
 
-线性/二次高度变化场只作候选诊断：需至少降低 0.005 mm 验证 RMS，且最大距离增加不超过 0.002 mm。本版本两个机型均不满足，因此导出中段直线拉伸参考面。
+中段侧壁使用恒定截面的直线拉伸参考面。线性/二次高度变化场用于诊断，采用门槛为至少降低 0.005 mm 验证 RMS，且最大距离增加不超过 0.002 mm；两个机型的诊断结果均不满足该门槛。
 
-## 依据与历史
+## 结果记录与接口依据
 
-当前拟合选择及比较证据保存在冻结结果的 `optimized_report.json` 和 `model_comparison.json`；已被替代的早期试验归档已清理。外部接口参考：[OpenUSD 世界变换](https://openusd.org/24.08/api/class_usd_geom_xform_cache.html)、[SciPy BSpline](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.BSpline.html)、[rhino3dm 曲面接口](https://mcneel.github.io/rhino3dm/python/api/NurbsSurface.html)。
+拟合选择及比较证据保存在冻结结果的 `optimized_report.json` 和 `model_comparison.json`。外部接口参考：[OpenUSD 世界变换](https://openusd.org/24.08/api/class_usd_geom_xform_cache.html)、[SciPy BSpline](https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.BSpline.html)、[rhino3dm 曲面接口](https://mcneel.github.io/rhino3dm/python/api/NurbsSurface.html)。
 
 这些文档支持接口和表示方法，不证明当前 USDZ 与实物的测量精度。

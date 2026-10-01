@@ -17,11 +17,10 @@ def rel(path):return Path(path).resolve().relative_to(ROOT.resolve()).as_posix()
 def file_record(path):return {'file':rel(path),'sha256':sha(path),'bytes':Path(path).stat().st_size}
 
 def current_design_evidence(source):
-    """Retain measured stage evidence and replace inherited feature summaries.
+    """Assemble publication metadata from measured stage feature records.
 
-    A rebuild reads design inputs from the preceding parameter document, whose
-    feature summaries describe the preceding geometry. Those summaries are not
-    evidence for the new shape; use the newly measured feature records instead.
+    Feature summaries use the staged geometry checks. Vent-pattern content and
+    its SHA-256 are bound to the publication metadata alongside those checks.
     """
     data=json.loads(Path(source).read_text(encoding='utf-8'))
     data['source_stage_metadata_sha256']=sha(source)

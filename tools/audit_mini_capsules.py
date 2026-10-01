@@ -1,4 +1,4 @@
-"""Read-only audit of the redesigned Mini normal-cut capsule vents.
+"""Read-only audit of Mini normal-cut capsule vents.
 
 Checks actual final-CAD ray intersections and interfaces. Only the unperforated
 comparison body is regenerated in memory; final parts are never modified.

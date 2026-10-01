@@ -13,11 +13,19 @@ def main():
     build=commands.add_parser('build');build.add_argument('--family',choices=['all','curve','enclosure'],default='all')
     build.add_argument('--model',choices=['mac-mini','mac-studio','both'],default='both');build.add_argument('--thickness',choices=['2','3'])
     commands.add_parser('export');commands.add_parser('fit-check');commands.add_parser('files')
+    commands.add_parser('sw-build',help='Build all native SW parts and assemblies, then verify them')
+    commands.add_parser('sw-verify',help='Verify the native SW delivery and parameter-edit evidence')
     args=parser.parse_args()
     if args.command=='verify':run('tools/audit_delivery.py',*(['--refresh-design-audits'] if args.refresh_design_audits else []))
     elif args.command=='files':run('tools/list_delivery_files.py')
     elif args.command=='fit-check':run('-m','macfit','verify');run('-m','macfit','integrity')
     elif args.command=='export':run('tools/migrate_exact_delivery.py','--engine','all','--publish')
+    elif args.command=='sw-verify':run('solidworks/verify.py')
+    elif args.command=='sw-build':
+        subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(ROOT/'solidworks/run.ps1'),
+                        '-Output',str(ROOT/'results/SW'),'-Evidence',str(ROOT/'validation/solidworks-native')],cwd=ROOT,check=True)
+        subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(ROOT/'solidworks/review.ps1')],cwd=ROOT,check=True)
+        run('solidworks/verify.py')
     else:
         if args.family in ('all','curve'):run('tools/build_nominal_solids.py','--model',args.model,'--replace')
         if args.family in ('all','enclosure'):run('tools/build_wall_variants.py','--model',args.model,*(['--thickness',args.thickness] if args.thickness else []))

@@ -1,10 +1,10 @@
-"""Authorized source revision: align planar extrusion rims to their supports.
+"""Align planar extrusion rims to their exact support definitions.
 
 No fitting, support-surface editing, healing, sewing, or tolerance enlargement.
-The old 3D edge and its extrusion pcurve are checked over their full domains by
+The input 3D edge and its extrusion pcurve are checked over their full domains by
 GeomLib_CheckCurveOnSurface. This is the kernel's numerical maximum-distance
 solver, not a formal interval-arithmetic certificate. Immutable input hashes,
-the computed deviations, and every replaced edge are retained in the receipt.
+the computed deviations, and each aligned edge are retained in the receipt.
 """
 from exact_verify import *
 from OCP.GeomLib import GeomLib_CheckCurveOnSurface
@@ -69,7 +69,7 @@ def candidates(source):
         transform=gp_Trsf();transform.SetTranslation(gp_Vec(*(direction*v)));profile.Transform(transform)
         if curve_equal(dict(type='BSplineCurve',**e['curve']['nurbs']),dict(type='BSplineCurve',**spline_data(profile))):continue
         # Positive equal weights and monotone U control coordinates establish
-        # that the old pcurve traverses the replacement's complete interval.
+        # that the input pcurve covers the aligned edge's complete interval.
         weights=np.array(pc['nurbs']['weights'])
         need(np.min(weights)>0 and np.ptp(weights)<1e-12,'Unsupported rational rim parameterization')
         need(np.all(np.diff(poles[:,0])>=-1e-12) or np.all(np.diff(poles[:,0])<=1e-12),'Rim parameterization is not monotone')

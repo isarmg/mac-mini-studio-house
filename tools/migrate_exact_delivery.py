@@ -21,7 +21,7 @@ def records():
     return result
 
 def migration_records():
-    """Select explicitly authorized revised masters, retaining formal paths."""
+    """Select staged candidates or accepted masters with formal output paths."""
     result=records()
     published_path=ROOT/'exact_delivery_manifest.json'
     published={r['key']:r for r in json.loads(published_path.read_text(encoding='utf-8'))['models']} if published_path.exists() else {}

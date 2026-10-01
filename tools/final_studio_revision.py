@@ -1,4 +1,4 @@
-﻿"""Build the current Studio housing and merged base from design inputs."""
+﻿"""Build Studio housing and base from current design inputs."""
 from pathlib import Path
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
@@ -16,7 +16,7 @@ from enclosure.studio_base_pattern import circular_pattern,inspect_pattern,write
 
 
 def perforate_base(base,table_path,progress_label='Studio'):
-    """Drill the current circular feature table, without an earlier CAD input."""
+    """Cut normal circular bores using the current hole-axis table."""
     data=np.loadtxt(table_path,delimiter=',',skiprows=1)
     centers,normals,radii=data[:,:3],data[:,3:6],data[:,6]
     rings=np.split(np.sort(centers[:,2]),np.flatnonzero(np.diff(np.sort(centers[:,2]))>.1)+1)

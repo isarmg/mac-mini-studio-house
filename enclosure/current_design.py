@@ -1,7 +1,7 @@
-"""Current housing/base construction from the retained design parameters.
+"""Construct housing and base from source USDZ and current design parameters.
 
-No earlier CAD result, revision input or pre-existing cache is a construction
-input. Coordinates in the feature tables are already in final assembly space.
+Feature-table coordinates use the final assembly coordinate system. Working
+caches accelerate construction and can be regenerated from the design inputs.
 """
 import json
 import math

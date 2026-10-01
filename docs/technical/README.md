@@ -10,8 +10,8 @@
 
 [完整精度参数](geometry_definition.json) 和 [独立复现脚本](reproduce_profiles.py) 可以一起复制到其他目录。SVG 和 CSV 是采样显示；选择 `--rhino` 时，脚本将公式中的样条控制数据直接写入 3DM。
 
-本套文档对应当前冻结交付，而不是重新拟合所得的新模型。[文档验收记录](../../validation/documentation.json) 记录参数来源、数值交叉检查以及交付 CAD 的哈希核对结果。必要的图表由 [文档生成脚本](../../tools/build_technical_docs.py) 从正式参数和拟合报告生成。
+本套文档对应当前冻结交付。[文档验收记录](../../validation/documentation.json) 记录参数来源、数值交叉检查以及交付 CAD 的哈希核对结果。图表由 [文档生成脚本](../../tools/build_technical_docs.py) 从正式参数和拟合报告生成。
 
 <!-- BEGIN SUMMARY -->
-本次文档对应发布 `20261001T030828560157Z`。外轮廓公式、四种内轮廓与独立 3DM 曲线复现均已检查；正式模型文件保持原值。
+文档数据绑定发布 `20261001T030828560157Z`，包含外轮廓公式、四种内轮廓与独立 3DM 曲线复现检查，以及正式 CAD 文件的 SHA-256 核对。
 <!-- END SUMMARY -->

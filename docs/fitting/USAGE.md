@@ -24,7 +24,7 @@ python -m macfit height --results results/work
 
 工作目录非空时 `run` 会要求指定新目录或加 `--overwrite`。该选项只更新生成文件，不递归删除目录。正式版本目录禁止通过 `run/plot/height` 修改。
 
-`run --input-dir` 可指定源文件目录，但文件名和 SHA-256 必须符合 `configs/models.json`。此 beta 仅支持附带的两个资产版本，不自动猜测其他 USDZ 的外壳。
+`run --input-dir` 可指定源文件目录，但文件名和 SHA-256 必须符合 `configs/models.json`。当前协议仅支持配置中的两个资产，不自动猜测其他 USDZ 的外壳。
 
 ## 结果内容
 
@@ -33,13 +33,13 @@ python -m macfit height --results results/work
 | `optimized_sidewall_raw.3dm` | 原尺度参考侧壁与开孔边界 |
 | `optimized_sidewall_nominal.3dm` | 水平统一标定为 127 / 197 mm 的参考侧壁 |
 | `optimized_report.json` | 选中模型、参数、各截面误差、G3 指标与限制 |
-| `model_comparison.json` | 基准与三种新候选的共同数据评分 |
+| `model_comparison.json` | 四种候选在共同数据上的评分 |
 | `opening_boundaries.json` | 源世界坐标下的孔/面板闭合边界 |
 | `section_*.csv` | 观测点、有效标记、补线距源数据的距离、孔遮罩 |
 | `control_points_mm.csv` | 控制点，不是曲线上插值点 |
 | `usd_audit.json` | 全部源 Mesh、单位、变换和 Prim 信息 |
 | `height_dependence.json` | 是否有证据加入高度变化场 |
-| `verification.json` | 本次生成后的验收记录 |
+| `verification.json` | 拟合参考的验收记录 |
 | `run_info.json` | 版本、依赖、输入指纹、配置指纹及运行时间 |
 | `comparison.png` / `sidewall_preview.png` | 数值比较与三维边界预览 |
 
@@ -60,7 +60,7 @@ python -m macfit height --results results/work
 
 已验证 Python 3.14.3 x64，依赖版本见 `requirements.txt`。推荐独立 venv，不依赖安装 Rhino 所附带的 Python。
 
-当前电脑 `.vendor` 中已有 rhino3dm。新安装不需要复制它，直接在 venv 中安装依赖。沙箱曾限制临时目录/库的访问；若报告 rhino3dm 不完整或不可读，优先使用正常用户权限下的独立 venv，不要放宽整个磁盘权限。
+当前电脑 `.vendor` 中包含 rhino3dm。独立安装可直接在 venv 中安装依赖。若报告 rhino3dm 不完整或不可读，应检查依赖目录的读取权限，或使用正常用户权限下的独立 venv。
 
 `integrity` 报告 Changed 表示正式文件和发布指纹不同，可能是编辑或重生成造成的，并不自动等于几何损坏。保留改动并生成下一版本，不要直接改校验文件掩盖变化。
 

@@ -1,4 +1,4 @@
-"""Versioned profiles and protocol, independent from previous experiment outputs."""
+"""Load model profiles and fitting protocol from project configuration."""
 
 import hashlib
 import importlib.metadata

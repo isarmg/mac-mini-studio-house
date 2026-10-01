@@ -9,7 +9,7 @@ python -m macfit verify
 python -m macfit integrity
 ```
 
-`test_core.py` 检查源数据指纹、开孔拓扑、G3、对称、孔遮罩与冻结保护；`test_release.py` 检查当前冻结轮廓与参考侧壁。`integrity` 只核对 `fit_reference_manifest.json` 所列当前参考输入和结果，不核对已撤下的旧 ZIP。
+`test_core.py` 检查源数据指纹、开孔拓扑、G3、对称、孔遮罩与冻结保护；`test_release.py` 检查当前冻结轮廓与参考侧壁。`integrity` 核对 `fit_reference_manifest.json` 所列的参考输入和结果。
 
 完整重新拟合可运行 `python -m macfit run --model both --output .tmp/refit`，再使用 `python -m macfit verify --results .tmp/refit` 验证。拟合数值与当前基准比较，PNG/3DM 文件无需字节相同。正式轮廓基准受覆盖保护。
 
