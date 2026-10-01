@@ -1,13 +1,23 @@
 """Freeze rebuilt procedural BREP candidates without overwriting deliverables."""
 import json,shutil,datetime
 from pathlib import Path
-from migrate_exact_delivery import ROOT,records,sha
+from migrate_exact_delivery import ROOT,records,sha,migration_records,accepted,EXTENSIONS
+
+
+def published_component(row):
+    """Reuse an unchanged component only with its intact native acceptance."""
+    if not row.get('published') or not all(accepted(row,engine) for engine in EXTENSIONS):
+        raise ValueError('Assembly component is not an intact published model: '+row['key'])
+    return {'source':row['source'].as_posix(),'source_sha256':sha(ROOT/row['source']),
+            'packet':row['packet'].relative_to(ROOT).as_posix(),
+            'preserved_published_component':True,'revision':None}
 
 def prepare(source_map):
     from exact_geometry import export,cq
     from exact_boundary import revise,definition_roundoff,need
     rows=records();by_source={str((ROOT/r['source']).resolve()):r for r in rows}
-    selected={};prepared={};original_packets={}
+    selected={};prepared={};original_packets={};preserved={}
+    available={r['key']:r for r in migration_records()}
     for target,source in source_map.items():
         formal=(ROOT/target).resolve();candidate=(ROOT/source).resolve()
         formal.relative_to(ROOT);candidate.relative_to(ROOT)
@@ -16,7 +26,11 @@ def prepare(source_map):
     for key,(row,source) in selected.items():
         if row['family']=='enclosure' and row['part']=='assembly':
             prefix=key.rsplit('__',1)[0]
-            need(all(prefix+'__'+p in selected for p in ('housing','base')),'Rebuilt assembly requires both staged component masters')
+            for label in ('housing','base'):
+                component=prefix+'__'+label
+                if component not in selected:
+                    need(component in available,'Assembly component is missing: '+component)
+                    preserved[component]=published_component(available[component])
     ordered=sorted(selected,key=lambda k:selected[k][0]['family']=='enclosure' and selected[k][0]['part']=='assembly')
     for key in ordered:
         row,candidate=selected[key];out=ROOT/'.tmp/exact-migration/candidates'/key/sha(candidate)
@@ -32,7 +46,10 @@ def prepare(source_map):
             prefix=key.rsplit('__',1)[0];before=json.loads(source_packet.read_text(encoding='utf-8'));parts=[];components=[];changes=[]
             need(len(before['bodies'])==2,'Assembly requires exactly two component bodies')
             for bi,label in enumerate(('housing','base')):
-                part=prepared[prefix+'__'+label];old=json.loads(original_packets[prefix+'__'+label].read_text(encoding='utf-8'))
+                component=prefix+'__'+label
+                part=prepared[component] if component in prepared else preserved[component]
+                original=original_packets.get(component,ROOT/part['packet'])
+                old=json.loads(original.read_text(encoding='utf-8'))
                 definition_roundoff(before['bodies'][bi],old['bodies'][0],'procedural assembly component '+label)
                 parts.extend(cq.Shape.importBrep(str(ROOT/part['source'])).Solids());components.append(part)
                 if part.get('revision'):

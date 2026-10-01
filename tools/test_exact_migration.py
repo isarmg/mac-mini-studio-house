@@ -3,23 +3,10 @@ import copy,json,unittest,tempfile
 from pathlib import Path
 from exact_verify import *
 from exact_topology import line_chain,circle_cycle,carrier_equal
-from exact_short_arc import apply as revise_short_arc
 
 FIXTURE=json.loads((Path(__file__).parent/'testdata/exact_native_circle.json').read_text())
-SHORT_ARC=json.loads((Path(__file__).parent/'testdata/studio_short_arc_context.json').read_text(encoding='utf-8'))
 
 def nurbs(c):return dict(type='BSplineCurve',**spline_data(c))
-
-def short_arc_context(source):
-    builder=BRep_Builder();vertices=[];faces=[];e=source['edges'][0]
-    for v in source['vertices']:
-        vertex=BRepBuilderAPI_MakeVertex(gp_Pnt(*v['point'])).Vertex()
-        builder.UpdateVertex(vertex,v['tolerance']);vertices.append(vertex)
-    edge=BRepBuilderAPI_MakeEdge(curve(e['curve']['original']),*vertices,*e['curve']['range']).Edge()
-    builder.UpdateEdge(edge,e['tolerance'])
-    for f in source['faces']:
-        face=TopoDS_Face();builder.MakeFace(face,surface(f['surface']),TopLoc_Location(),1e-7);faces.append(face)
-    return builder,{'edges':[edge],'vertices':vertices,'faces':faces}
 
 class ExactMigrationTests(unittest.TestCase):
     def test_step_preserves_normalized_knots_on_real_short_trimmed_span(self):
@@ -119,28 +106,5 @@ class ExactMigrationTests(unittest.TestCase):
         check=compare_vertices(s,e,n,{0});self.assertEqual(len(check['periodic_auxiliary_vertex_normalization']),1)
         n['start'][0]=2e-8
         with self.assertRaises(ValueError):compare_vertices(s,e,n,{0})
-
-    def test_locked_short_arc_preserves_supports_vertices_and_tolerances(self):
-        source=copy.deepcopy(SHORT_ARC);before=copy.deepcopy(source);builder,created=short_arc_context(source)
-        original_supports=[BRep_Tool.Surface_s(f) for f in created['faces']]
-        result=revise_short_arc(source,created,builder)
-        self.assertEqual(source,before);self.assertEqual(len(result),1)
-        self.assertEqual(BRep_Tool.Curve_s(created['edges'][0],0.,0.).DynamicType().Name(),'Geom_Circle')
-        self.assertEqual(BRep_Tool.Tolerance_s(created['edges'][0]),source['edges'][0]['tolerance'])
-        for descriptor,vertex in zip(source['vertices'],created['vertices']):
-            self.assertEqual(BRep_Tool.Tolerance_s(vertex),descriptor['tolerance'])
-            self.assertEqual(vector(BRep_Tool.Pnt_s(vertex)),descriptor['point'])
-        for before_surface,face in zip(original_supports,created['faces']):
-            self.assertEqual(before_surface,BRep_Tool.Surface_s(face))
-        self.assertLessEqual(result[0]['computed_max_deviation_mm'],source['edges'][0]['tolerance']+1e-7)
-        self.assertTrue(all(c['maximum_curve_on_support_error_mm']<=source['edges'][0]['tolerance'] for c in result[0]['support_checks']))
-
-    def test_locked_short_arc_rejects_changed_support(self):
-        source=copy.deepcopy(SHORT_ARC);source['faces'][0]['surface']['radius']+=1e-4
-        with self.assertRaises(ValueError):revise_short_arc(source,{},BRep_Builder())
-
-    def test_locked_short_arc_does_not_change_unrelated_chord(self):
-        source=copy.deepcopy(SHORT_ARC);source['edges'][0]['curve']['original']['poles'][0][0]+=1e-4
-        self.assertEqual(revise_short_arc(source,{},BRep_Builder()),[])
 
 if __name__=='__main__':unittest.main()

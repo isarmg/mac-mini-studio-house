@@ -10,17 +10,18 @@ from enclosure.mini_openings import _cut_batch
 from tools.rebuild_bottom_revision import horizontal_face,sampled_distance,STAGE
 from tools.housing_perforations import validate_cylinder_axes
 from tools.rear_row_bands import perforate_rear_by_rows
-from enclosure.rear_profile import map_current_pattern
+from enclosure.studio_rear_pattern import make_pattern as make_rear_pattern,write_pattern as write_rear_pattern,inspect_pattern as inspect_rear_pattern
 from enclosure.validation import validate_profile,validate_plain_top
+from enclosure.studio_base_pattern import circular_pattern,inspect_pattern,write_pattern
 
 
 def perforate_base(base,table_path,progress_label='Studio'):
-    """Drill the accepted 8 x 252 feature table, without an earlier CAD input."""
+    """Drill the current circular feature table, without an earlier CAD input."""
     data=np.loadtxt(table_path,delimiter=',',skiprows=1)
     centers,normals,radii=data[:,:3],data[:,3:6],data[:,6]
     rings=np.split(np.sort(centers[:,2]),np.flatnonzero(np.diff(np.sort(centers[:,2]))>.1)+1)
-    if len(data)!=2016 or len(rings)!=8 or any(len(ring)!=252 for ring in rings):
-        raise ValueError('Studio requires eight rings of 252 base holes')
+    if len(rings)!=8 or any(len(ring)!=len(rings[0]) for ring in rings):
+        raise ValueError('Studio requires eight equally populated base rings')
     if not np.allclose(np.linalg.norm(normals,axis=1),1,atol=1e-12,rtol=0):
         raise ValueError('Base drilling directions must be unit normals')
     for start in range(0,len(data),126):
@@ -37,15 +38,24 @@ def perforate_base(base,table_path,progress_label='Studio'):
         'vent_edge_clearance_along_cone_mm':.75,'geometry':geometry}
 
 
+def build_housing(design,out,thickness):
+    housing,offset=housing_without_rear_holes(design)
+    table=make_rear_pattern(design['main_G3_quarter_controls_mm'],design['rear_grid_design'])
+    write_rear_pattern(out/'rear_hole_axes.csv',table)
+    housing,rear=perforate_rear_by_rows(housing,out,thickness,design,out/'rear_hole_axes.csv')
+    rear['wrapped_planar_grid']=inspect_rear_pattern(table,design['main_G3_quarter_controls_mm'],design['rear_grid_design'])
+    if not rear['wrapped_planar_grid']['passed']:raise ValueError('Rear planar pattern does not satisfy the design')
+    return housing,rear,offset
+
+
 def build(folder,thickness):
     folder=Path(folder);design=parameters(folder,for_rebuild=True);definition=design['base_design']
     out=STAGE/'mac-studio'/f'{thickness}mm';out.mkdir(parents=True,exist_ok=True)
-    housing,offset=housing_without_rear_holes(design)
-    map_current_pattern(folder/'rear_hole_axes.csv',out/'rear_hole_axes.csv',design['main_G3_quarter_controls_mm'])
-    housing,rear=perforate_rear_by_rows(housing,out,thickness,design,out/'rear_hole_axes.csv')
-    base,holes=perforate_base(unperforated_base(design),folder/'base_hole_axes.csv',f'Studio {thickness} mm')
-    import shutil
-    shutil.copy2(folder/'base_hole_axes.csv',out/'base_hole_axes.csv')
+    housing,rear,offset=build_housing(design,out,thickness)
+    data=circular_pattern(definition)
+    write_pattern(out/'base_hole_axes.csv',data)
+    base,holes=perforate_base(unperforated_base(design),out/'base_hole_axes.csv',f'Studio {thickness} mm')
+    holes['horizontal_rings']=inspect_pattern(data,definition)
     bottom=definition['interface_z_mm']
     inner=horizontal_face(housing,bottom,largest=True).innerWires()[0]
     outer=horizontal_face(base,bottom,largest=True).outerWire()

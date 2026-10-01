@@ -13,11 +13,11 @@ def collect():
                 path=folder/name
                 if not path.is_file():errors.append('Missing design audit '+str(path));continue
                 d=json.loads(path.read_text(encoding='utf-8'));valid=d.get('passed') is True
-                if name=='base_geometry_audit.json':valid=valid and d.get('base_brep_sha256')==sha(folder/'base.brep') and d.get('housing_brep_sha256')==sha(folder/'housing.brep')
+                if name=='base_geometry_audit.json':valid=valid and d.get('base_brep_sha256')==sha(folder/'base.brep') and d.get('housing_brep_sha256')==sha(folder/'housing.brep') and d.get('design_requirements_sha256')==sha(ROOT/'data/enclosure_design.json')
                 else:
                     valid=valid and all(d.get('input_hashes',{}).get(part)==sha(folder/(part+'.brep')) for part in ('housing','base'))
                     if model=='mac-mini':valid=valid and d.get('validation_sha256')==sha(folder/'validation.json') and d.get('uniform_vent_pattern_sha256')==sha(folder/'uniform_vent_pattern.json') and d.get('parameters_sha256')==sha(folder/'model_parameters.json')
-                    else:valid=valid and d.get('port_count')==14 and d.get('base_hole_through_topology',{}).get('accepted_holes')==2016
+                    else:valid=valid and d.get('port_count')==14 and d.get('base_hole_through_topology',{}).get('accepted_holes')==1952 and d.get('wrapped_rear_grid',{}).get('hole_count')==2309 and d.get('wrapped_rear_grid',{}).get('passed') is True and d.get('horizontal_base_rings',{}).get('passed') is True and d.get('base_hole_table_sha256')==sha(folder/'base_hole_axes.csv') and d.get('rear_hole_table_sha256')==sha(folder/'rear_hole_axes.csv') and d.get('parameters_sha256')==sha(folder/'model_parameters.json') and d.get('validation_sha256')==sha(folder/'validation.json')
                 if not valid:errors.append('Stale or failed design audit '+str(path.relative_to(ROOT)))
                 design.append(dict(file_record(path),passed=bool(valid)))
     result.update(passed=not errors,complete=not errors,errors=errors,design_audits=design);return result

@@ -89,6 +89,9 @@ def verify_manifest(manifest=None):
     profile_record=manifest.get('shared_profile_definition')
     if profile_record and (not (ROOT/profile_record['file']).is_file() or sha(ROOT/profile_record['file'])!=profile_record['sha256']):
         errors.append('Shared fitted-profile definition changed after publication')
+    requirement_record=manifest.get('design_requirement_definition')
+    if requirement_record and (not (ROOT/requirement_record['file']).is_file() or sha(ROOT/requirement_record['file'])!=requirement_record['sha256']):
+        errors.append('Enclosure design requirements changed after publication')
     for descriptor in manifest.get('implementation_snapshot',[]):
         path=ROOT/descriptor['file']
         if not path.is_file() or sha(path)!=descriptor['sha256']:errors.append('Implementation snapshot changed: '+descriptor['file'])
@@ -204,6 +207,9 @@ def publish():
             if assembly.get('design_evidence'):
                 design=json.loads((ROOT/assembly['design_evidence']['file']).read_text(encoding='utf-8'))
                 d['bottom_revision']=design['checks']
+                for field in ('base_wall','base_interface'):
+                    feature=design.get('design_parameters',{}).get('features',{}).get(field)
+                    if feature:d[field]=feature
                 for field in ('top','profile','inner_profile_offset','rear_perforations','base_perforations'):
                     if field in design['checks']:d[field]=design['checks'][field]
                 if 'bottom_plate' in d and 'plate_to_housing_contour_max_error_mm' in design['checks']:
@@ -238,13 +244,15 @@ def publish():
     consistency=verify_definitions(manifest)
     if not consistency['passed']:raise ValueError(str(consistency['errors']))
     implementation=[]
-    design_scripts=[ROOT/'tools'/name for name in ('audit_base_geometry.py','audit_mini_capsules.py','audit_studio_final.py')]
-    for source in sorted((ROOT/'tools').glob('exact_*.py'))+sorted((ROOT/'tools/exact_native').glob('*'))+[ROOT/'tools/migrate_exact_delivery.py',ROOT/'tools/data/studio_short_arc_revision.json',ROOT/'tools/audit_delivery.py']+design_scripts:
+    design_scripts=[ROOT/'tools'/name for name in ('audit_base_geometry.py','audit_mini_capsules.py','audit_studio_final.py','rebuild_studio_base.py','final_studio_revision.py')]
+    design_scripts.extend(ROOT/'enclosure'/name for name in ('studio_base_pattern.py','studio_rear_pattern.py','rear_profile.py','current_design.py','mini_capsules.py'))
+    for source in sorted((ROOT/'tools').glob('exact_*.py'))+sorted((ROOT/'tools/exact_native').glob('*'))+[ROOT/'tools/migrate_exact_delivery.py',ROOT/'tools/audit_delivery.py']+design_scripts:
         if not source.is_file():continue
         implementation.append({'source_file':rel(source),'sha256':sha(source),'bytes':source.stat().st_size})
-    for source in [ROOT/'tools/shared_profiles.py',ROOT/'project.py',ROOT/'data/fitted_profiles.json']:
+    for source in [ROOT/'tools/shared_profiles.py',ROOT/'project.py',ROOT/'data/fitted_profiles.json',ROOT/'data/enclosure_design.json']:
         implementation.append({'source_file':rel(source),'sha256':sha(source),'bytes':source.stat().st_size})
     manifest['shared_profile_definition']=file_record(ROOT/'data/fitted_profiles.json')
+    manifest['design_requirement_definition']=file_record(ROOT/'data/enclosure_design.json')
     manifest['acquisition_implementation_fingerprints']=implementation
     audit={'schema_version':2,'acceptance_standard':'exact native definitions and G3','passed':True,'complete':True,'pending':[],
         'units':'mm','formal_shape_count':20,'files_per_shape':['.brep','.3dm','.stp','.x_t'],'strict_manifest':'exact_delivery_manifest.json',

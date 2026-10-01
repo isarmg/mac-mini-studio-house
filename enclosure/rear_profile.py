@@ -4,8 +4,6 @@ from scipy.integrate import cumulative_simpson
 from scipy.interpolate import PchipInterpolator
 from scipy.spatial import cKDTree
 from scipy.special import comb
-from pathlib import Path
-import csv
 
 def bezier(controls, parameters):
     t = np.atleast_1d(parameters)
@@ -65,18 +63,3 @@ class RearProfile:
         tangent[flat] = [1, 0]
         return xy, tangent
 
-
-def map_current_pattern(source,target,controls):
-    """Preserve the current grid's arc spacing, handedness, heights and radii."""
-    with Path(source).open(encoding='utf-8-sig',newline='') as stream:
-        reader=csv.DictReader(stream);fields=reader.fieldnames;rows=list(reader)
-    # The existing table's s coordinate predates its authorized X reflection.
-    arcs=-np.array([float(row['s_mm']) for row in rows])
-    xy,tangent=RearProfile(controls).evaluate(arcs)
-    inward=np.c_[-tangent[:,1],tangent[:,0],np.zeros(len(rows))]
-    for i,row in enumerate(rows):
-        for key,value in zip(('x_mm','y_mm','nx','ny','nz'),[*xy[i],*inward[i]]):row[key]=repr(float(value))
-    Path(target).parent.mkdir(parents=True,exist_ok=True)
-    with Path(target).open('w',encoding='utf-8',newline='') as stream:
-        writer=csv.DictWriter(stream,fieldnames=fields);writer.writeheader();writer.writerows(rows)
-    return {'holes':len(rows),'arc_spacing_and_z_unchanged':True,'inward_normals_follow_shared_profile':True}

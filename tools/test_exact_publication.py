@@ -1,8 +1,10 @@
 """Release safeguards: drift, rollback and path containment."""
 import tempfile,unittest
+from unittest.mock import patch
 from pathlib import Path
 from exact_publish import FileTransaction
 from migrate_exact_delivery import ROOT
+from exact_candidates import published_component
 
 class PublicationTests(unittest.TestCase):
     def setUp(self):
@@ -28,5 +30,20 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaises(ValueError):tx.add(self.source,self.root.parent/'outside.txt')
     def test_rollback_removes_only_newly_created_file(self):
         self.target.unlink();tx=self.tx();tx.commit();tx.rollback();self.assertFalse(self.target.exists())
+
+class AssemblyReuseTests(unittest.TestCase):
+    def row(self):return {'key':'component','published':True,'source':Path('part.brep'),'packet':ROOT/'canonical.json'}
+    def test_only_native_accepted_published_component_can_be_reused(self):
+        with patch('exact_candidates.accepted',return_value=True) as accepted,patch('exact_candidates.sha',return_value='bound-hash'):
+            result=published_component(self.row())
+        self.assertEqual(accepted.call_count,3)
+        self.assertTrue(result['preserved_published_component'])
+        self.assertEqual(result['source_sha256'],'bound-hash')
+        self.assertIsNone(result['revision'])
+    def test_damaged_or_unpublished_component_is_rejected(self):
+        with patch('exact_candidates.accepted',return_value=False):
+            with self.assertRaises(ValueError):published_component(self.row())
+        row=self.row();row['published']=False
+        with self.assertRaises(ValueError):published_component(row)
 
 if __name__=='__main__':unittest.main()

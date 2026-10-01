@@ -4,6 +4,8 @@ No earlier CAD result, revision input or pre-existing cache is a construction
 input. Coordinates in the feature tables are already in final assembly space.
 """
 import json
+import math
+import hashlib
 import sys
 from pathlib import Path
 import numpy as np
@@ -28,6 +30,23 @@ def parameters(folder, *, for_rebuild=False):
         raise ValueError('Published enclosure still uses a different fitted outline')
     result['main_G3_quarter_controls_mm']=shared['controls_mm']
     result['shared_profile']=binding(result['model'])
+    if for_rebuild:
+        path=ROOT/'data/enclosure_design.json'
+        rules=json.loads(path.read_text(encoding='utf-8'))[result['model']]
+        definition=result['base_design']
+        angle=rules['cone_angle_to_horizontal_degrees']
+        slope=1. if angle==45. else math.sqrt(3.) if angle==30. else 1/math.tan(math.radians(angle))
+        definition.update(cone_angle_to_horizontal_degrees=angle,cone_slope_dr_dz=slope)
+        if result['model']=='mac-mini':definition['vent_width_mm']=rules['vent_width_mm']
+        else:
+            definition.update(vent_diameter_mm=rules['vent_diameter_mm'],horizontal_bore_rings=True,
+                              base_ring_count=rules['base_ring_count'],base_minimum_center_pitch_mm=rules['base_minimum_center_pitch_mm'])
+            result['rear_grid_design']=rules['rear_grid']
+        wall=result['features']['base_wall'];intercept=definition['outer_cone_radius_intercept_mm']
+        wall['cone']={'slope_dr_dz':slope,'intercept_radius_mm':intercept}
+        wall['conical_surface']={'slope':slope,'outer_intercept':intercept,
+                                'inner_intercept':intercept-definition['cone_normal_thickness_mm']*math.hypot(1,slope)}
+        result['design_requirements']={'file':'data/enclosure_design.json','sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
     return result
 
 

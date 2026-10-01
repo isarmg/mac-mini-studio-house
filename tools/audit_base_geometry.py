@@ -29,6 +29,9 @@ def audit(model,t):
     inner=min(cones,key=lambda row:row[0])
     outer=min([row for row in cones if row[0]>inner[0]+1],key=lambda row:row[2].BoundingBox().zmin)
     factor=np.hypot(1,outer[1]);normal=(outer[0]-inner[0])/factor
+    measured_angle=float(np.degrees(np.arctan2(1,outer[1])))
+    requirement=json.loads((ROOT/'data/enclosure_design.json').read_text(encoding='utf-8'))[model]
+    angle_error=abs(measured_angle-requirement['cone_angle_to_horizontal_degrees'])
     lower=shape.BoundingBox().zmin+1e-7
     upper=6.5 if model=='mac-mini' else max(p['z'] for p in planes)-1.5
     edge_ranges=[]
@@ -55,6 +58,8 @@ def audit(model,t):
     result={'model':model,'housing_thickness_mm':t,'base_brep_sha256':digest(folder/'base.brep'),
         'housing_brep_sha256':digest(folder/'housing.brep'),
         'measured_conical_normal_thickness_mm':normal,'measured_lower_plate_mm':floor_thickness,
+        'measured_cone_angle_to_horizontal_degrees':measured_angle,'cone_angle_error_degrees':angle_error,
+        'design_requirements_sha256':digest(ROOT/'data/enclosure_design.json'),
         'measured_upper_plate_mm':top_thickness,'measured_vent_clearances_along_cone_mm':clearances,
         'outer_cone_junction_z_mm':[lower,upper],'examined_outer_mouth_edges':len(edge_ranges),
         'vertical_risers':risers,'inner_cone_directly_intersects_both_planes':direct,
@@ -62,7 +67,7 @@ def audit(model,t):
         'measured_base_height_mm':shape.BoundingBox().zlen}
     result['passed']=(shape.isValid() and len(shape.Solids())==1 and not risers and direct and planar_clean
         and all(abs(v-1.5)<2e-5 for v in (normal,floor_thickness,top_thickness))
-        and max(abs(v-.75) for v in clearances)<1e-4)
+        and max(abs(v-.75) for v in clearances)<1e-4 and angle_error<1e-9)
     result['passed']=bool(result['passed'])
     if model=='mac-mini':
         housing=cq.Shape.importBrep(str(folder/'housing.brep'));hb=housing.BoundingBox();bb=shape.BoundingBox()

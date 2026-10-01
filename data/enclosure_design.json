@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "units": "mm",
+  "base_angle_datum": "acute angle between cone generatrix and horizontal plane",
+  "fixed_base_dimensions": "retain base height, lower exterior circle and housing mating contour",
+  "mac-mini": {
+    "cone_angle_to_horizontal_degrees": 45.0,
+    "vent_width_mm": 2.0
+  },
+  "mac-studio": {
+    "cone_angle_to_horizontal_degrees": 30.0,
+    "vent_diameter_mm": 1.5,
+    "base_ring_count": 8,
+    "base_minimum_center_pitch_mm": 2.0,
+    "rear_grid": {
+      "diameter_mm": 1.5,
+      "horizontal_pitch_mm": 2.0,
+      "vertical_pitch_to_horizontal_ratio": 0.8660254037844386,
+      "maximum_unwrapped_half_width_mm": 85.5,
+      "band_z_range_mm": [42.449631669005555, 90.17018599619367],
+      "placement": "regular staggered planar grid wrapped by outer-profile arc length"
+    }
+  }
+}

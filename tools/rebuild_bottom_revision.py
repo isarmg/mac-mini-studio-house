@@ -84,7 +84,7 @@ def stage_mini(folder, thickness):
     # inward normal exit stay on the conical wall between the two planes.
     cone = {"slope_dr_dz":slope,"intercept_radius_mm":outer_intercept,"z_min_mm":0.0,"z_max_mm":cut_z}
     slot_tools, pattern = make_capsule_cutters(cone, 1.5,
-        length_mm=cut_z*np.hypot(1, slope)-1.5, center_z_mm=cut_z/2)
+        width_mm=definition['vent_width_mm'],length_mm=cut_z*np.hypot(1, slope)-1.5, center_z_mm=cut_z/2)
     half_z = pattern["length_mm"] / (2 * np.hypot(1, slope))
     normal_exit_z = pattern["center_z_mm"] + half_z + 1.5*slope/np.hypot(1, slope)
     normal_entry_z = pattern["center_z_mm"]-half_z+1.5*slope/np.hypot(1, slope)
@@ -140,15 +140,18 @@ def stage_mini(folder, thickness):
     }, pattern
 
 
-def export_stage(model,thickness):
+def export_stage(model,thickness,*,preserve_housing=False):
     label=f'{thickness}mm';folder=ROOT/'results/masters'/model/('enclosure-'+label)
     out=STAGE/model/label;out.mkdir(parents=True,exist_ok=True)
     if model=='mac-mini':parts,checks,pattern=stage_mini(folder,thickness)
     else:
         from tools.final_studio_revision import build
         parts,checks=build(folder,thickness);pattern=None
+    if preserve_housing:
+        parts['housing']=cq.Shape.importBrep(str(folder/'housing.brep'))
     outputs=[]
     for name,shape in parts.items():
+        if preserve_housing and name=='housing':continue
         path=out/(name+'.brep')
         if not shape.exportBrep(str(path)):raise ValueError('BREP export failed')
         outputs.append(path);print(model,label,name,'procedural BREP staged',flush=True)
@@ -162,6 +165,8 @@ def export_stage(model,thickness):
         'assembly_solid_count':2,'assembly_dimensions_mm':dimensions,'changed_file_sha256':{p.name:digest(p) for p in outputs},
         'stage':'procedural BREP only; all formats require shared strict native acceptance',
         'design_parameters':parameters(folder,for_rebuild=True)}
+    if preserve_housing:
+        record['preserved_housing']={'file':(folder/'housing.brep').relative_to(ROOT).as_posix(),'sha256':digest(folder/'housing.brep')}
     if pattern is not None:
         pattern.pop('cutting',None)
         (out/'uniform_vent_pattern.json').write_text(json.dumps(pattern,indent=2)+'\n',encoding='utf-8')

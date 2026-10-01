@@ -54,6 +54,9 @@ def main():
     if pattern_hash != openings["pattern_sha256"]:
         raise ValueError("Capsule feature table does not match the accepted build")
     pattern = read(pattern_path)
+    requirements=read(ROOT/'data/enclosure_design.json')['mac-mini']
+    if pattern['width_mm']!=requirements['vent_width_mm']:
+        raise ValueError('Mini slot width differs from the current design')
     if pattern.get("design_thickness_mm") != 1.5 or len(pattern.get("holes", [])) != 108:
         raise ValueError("Wrong capsule feature count or thickness")
     if not pattern.get("geometry", {}).get("passed"):

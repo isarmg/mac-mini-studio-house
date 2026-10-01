@@ -97,7 +97,7 @@ def fit_source_capsules():
     return pattern
 
 
-def make_capsule_cutters(cone, thickness, *, length_mm=None, center_z_mm=None):
+def make_capsule_cutters(cone, thickness, *, width_mm=None, length_mm=None, center_z_mm=None):
     """Return 108 exact capsule prisms and their world-space feature table.
 
     cone: slope_dr_dz, intercept_radius_mm, z_min_mm, z_max_mm.
@@ -107,13 +107,16 @@ def make_capsule_cutters(cone, thickness, *, length_mm=None, center_z_mm=None):
     import cadquery as cq
 
     pattern = dict(fit_source_capsules())
+    if width_mm is not None:
+        pattern['source_estimated_width_mm']=pattern['width_mm']
+        pattern['width_mm']=float(width_mm)
     if length_mm is not None:
         pattern["source_estimated_length_mm"] = pattern["length_mm"]
         pattern["length_mm"] = float(length_mm)
     if center_z_mm is not None:
         pattern["source_estimated_center_z_mm"] = pattern["center_z_mm"]
         pattern["center_z_mm"] = float(center_z_mm)
-    if length_mm is not None or center_z_mm is not None:
+    if width_mm is not None or length_mm is not None or center_z_mm is not None:
         pattern["design_adjustment"] = "Slots remain wholly on the conical sidewall; neither 1.5 mm planar plate is perforated"
     slope = float(cone["slope_dr_dz"])
     norm = float(np.hypot(1, slope))

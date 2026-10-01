@@ -250,8 +250,8 @@ def perforate_rear_by_rows(body, out, thickness, parameters, table_path):
     if table_path.resolve()!=(out/'rear_hole_axes.csv').resolve():
         shutil.copy2(table_path, out / "rear_hole_axes.csv")
     record = {
-        "classification": "regular staggered circular grid fitted to source texture",
-        "algorithm": "Two exactly reusable drilled annular row bands, translated into 29 rows and glued at planar interfaces",
+        "classification": "regular planar staggered circles wrapped by outer-profile arc length",
+        "algorithm": f"Two exactly reusable drilled annular row bands, translated into {len(row_ids)} rows and glued at planar interfaces",
         "hole_count": len(centers),
         "radius_mm": float(radii[0]),
         "direction": "local G3 profile inward normal",

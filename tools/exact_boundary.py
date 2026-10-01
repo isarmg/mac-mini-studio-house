@@ -105,8 +105,6 @@ def revise_body(source,label=''):
             'computed_max_deviation_mm':deviation,'computed_max_parameter':checker.MaxParameter(),'distance_method':'GeomLib_CheckCurveOnSurface',
             'isocurve_v_from_exact_plane':v,'source_pcurve_v_span_mm':float(np.ptp(np.array(pc['nurbs']['poles'])[:,1])),'support_surfaces_changed':False}
         changes.append(record);print('Boundary revision',label,ei,'deviation_mm',deviation,flush=True)
-    from exact_short_arc import apply as apply_short_arc
-    changes.extend(apply_short_arc(source,created,builder))
     if not shape.isValid():
         analyzer=BRepCheck_Analyzer(shape.wrapped)
         for kind,items in [('edge',shape.Edges()),('face',shape.Faces())]:
