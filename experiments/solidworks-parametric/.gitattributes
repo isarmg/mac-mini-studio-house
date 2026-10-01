@@ -1,0 +1,7 @@
+# Keep source hash bindings stable across Windows Git checkouts.
+.gitattributes text eol=lf
+*.cs text eol=lf
+*.ps1 text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf

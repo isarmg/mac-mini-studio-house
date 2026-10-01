@@ -4,7 +4,16 @@
 
 完整原理、拟合结果、数学公式和独立复现方法见 [项目技术文档](docs/technical/README.md)，也可打开 [离线图文版](docs/technical/index.html)。其中包含完整精度控制点、内曲线节点表及可直接绘图的 Python 脚本。
 
-最终模型集中存放在 `results`，文件名包含机型、系列、厚度和零件，见 [完整文件索引](DELIVERY.md)：
+主分支保留两套并行方案，共用已验收的拟合轮廓和精确母版：
+
+| 方案 | 运行入口 | 产物与范围 |
+|---|---|---|
+| 原有统一建模与严格三格式导出 | `python -B project.py build --family all`；`python -B project.py export` | `results/3DM`、`results/STP`、`results/X_T`；完整 20 件正式模型及 BREP 母版 |
+| [SolidWorks 原生参数化方案](experiments/solidworks-parametric/README.md) | `./experiments/solidworks-parametric/run.ps1` | `results/experimental/solidworks-parametric`；三件已验证的 `.sldprt` 原型，支持壳体高度、Studio 锥体及单圈孔阵列的参数修改 |
+
+SW 方案已从 `experiment/solidworks-parametric` 合并到 `main`。当前为可验证原型，完整接口孔、全部底孔、装配轮廓和孔位联动的迁移范围见 [SW 方案说明](experiments/solidworks-parametric/README.md#原型的边界及后续迁移)，验收数据见 [SW 原型验证报告](experiments/solidworks-parametric/verification.json)。
+
+原有方案的正式模型集中存放在 `results`，文件名包含机型、系列、厚度和零件，见 [完整文件索引](DELIVERY.md)：
 
 - [3DM](results/3DM)：Rhino 文件；`reference` 子目录另存有效拟合和偏移参考曲线。
 - [STP](results/STP)：STEP 文件，统一使用 `.stp`，不重复存放 `.step`。
@@ -23,7 +32,7 @@
 
 Mini 有 108 个宽 2 mm、总长约 7.692388 mm 的长圆孔。Studio 底座有 8 圈 × 244 个、共 1952 个直径 1.5 mm 的圆孔，同圈孔心等高；背面有 27 排、86/85 孔交错的 2309 个直径 1.5 mm 圆孔。背孔先在展开平面中按横向 2 mm、纵向约 1.732051 mm、隔排错开 1 mm 布置，再将孔心按外轮廓弧长贴合，展开后的相邻孔心三角形为等腰。Studio 背孔与底孔均沿孔心处曲面法线，用全深度保持直径 1.5 mm 的直圆柱贯穿。通风口外缘沿锥面距上下交界各 0.75 mm，Studio 由最上、最下圈分别满足边距。前后 14 个接口沿用纠正后的顺序。当前重建规则见 [设计参数](data/enclosure_design.json)。
 
-从本目录运行统一入口：
+原有方案从本目录运行统一入口：
 
 ```powershell
 python -B project.py verify
